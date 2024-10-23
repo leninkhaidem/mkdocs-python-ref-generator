@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "mykdocs-py-ref-gen"
+version = "0.1.0"
+description = ""
+authors = ["Lenin Khaidem <leninkhaidem@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.1"
+pytest = "^8.3.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
