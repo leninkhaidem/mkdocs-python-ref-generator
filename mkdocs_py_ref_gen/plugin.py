@@ -21,6 +21,7 @@ except ImportError:
 
 class ModuleConfig(base.Config):
     name = c.Type(str)
+    path = c.Type(str, default="")
     exclude_files = c.Type(list, default=[])
     exclude_dirs = c.Type(list, default=[])
     options = c.Type(dict, default={})
@@ -35,25 +36,26 @@ class MkDocsPyRefGenPlugin(GenFilesPlugin):
         c.SubConfig(ModuleConfig), default=[])),)
 
     def _get_modules(self) -> typing.List[generator.Module]:
-        return [
+        modules = [
             generator.Module(name=_x['name'],
-                             path=generator.get_module_path(_x['name']),
+                             path=_x['path'] or generator.get_module_path(
+                                 _x['name']),
                              exclude_files=_x.get("exclude_files", []),
                              exclude_dirs=_x.get("exclude_dirs", []),
                              options=_x.get("options", {}))
             for _x in self.config['modules']
         ]
+        if not modules:
+            raise PluginError("No modules specified for py-ref-gen plugin")
+        return modules
 
     def on_files(self, files: Files, config: Config) -> Files:
         self._dir = tempfile.TemporaryDirectory(prefix="mkdocs_gen_files_")
-        log.info(self.config)
         modules = self._get_modules()
-        log.info(modules)
         with FilesEditor(files, config, self._dir.name) as ed:
             nav = mkdocs_gen_files.Nav()
             for module in modules:
                 generator.render_ref(module, nav)
             generator.generate_summary(nav)
-            log.info([_x.src_path for _x in ed.files])
         self._edit_paths = dict(ed.edit_paths)
         return ed.files

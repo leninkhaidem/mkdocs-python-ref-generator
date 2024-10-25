@@ -15,7 +15,7 @@ def get_module_path(module_name: str) -> str:
         raise ValueError("module_name is required")
     info = pkgutil.find_loader(module_name)
     if not info:
-        raise ValueError(f"module {module_name} not found")
+        raise ImportError(f"module {module_name} not found")
     return pathlib.Path(info.get_filename()).parent.parent.as_posix()
 
 
@@ -105,7 +105,6 @@ def render_ref(module: Module,
             identifier = ".".join(parts)
             md_content = get_md_content(identifier, options=module.options)
             print(f"{md_content}", file=fd)
-    # mkdocs_gen_files.set_edit_path(full_doc_path, path.relative_to(root_path))
     return nav
 
 
