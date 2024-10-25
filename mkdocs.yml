@@ -1,0 +1,5 @@
+site_name: My Docs
+plugins:
+  - py-ref-gen:
+      modules:
+        - name: mkdocs_py_ref_gen

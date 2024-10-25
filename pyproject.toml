@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mykdocs-py-ref-gen"
+name = "mkdocs-py-ref-gen"
 version = "0.1.0"
 description = ""
 authors = ["Lenin Khaidem <leninkhaidem@gmail.com>"]
@@ -10,8 +10,14 @@ python = "^3.9"
 mkdocs-gen-files = "^0.5.0"
 mkdocs-literate-nav = "^0.6.1"
 pytest = "^8.3.3"
+click = "^8.1.7"
 
+[tool.poetry.scripts]
+mkdocs-py-ref-gen = "mkdocs_py_ref_gen.cli:main"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins."mkdocs.plugins"]
+py-ref-gen = "mkdocs_py_ref_gen.plugin:MkDocsPyRefGenPlugin"

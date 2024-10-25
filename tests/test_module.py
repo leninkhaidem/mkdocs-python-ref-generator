@@ -1,4 +1,4 @@
-from mykdocs_py_ref_gen import __version__
+from mkdocs_py_ref_gen import __version__
 
 
 def test_version():
