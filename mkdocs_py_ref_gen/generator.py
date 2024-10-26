@@ -124,24 +124,7 @@ class Module:
     options: dict
 
 
-def _normalize_paths(paths: typing.List[str]) -> typing.List[str]:
-    """
-    Normalize a list of file paths to POSIX format.
-
-    Args:
-        paths (list): The list of file paths.
-
-    Returns:
-        list: The normalized list of file paths.
-
-    Example:
-        >>> _normalize_paths(['C:\\path\\to\\file'])
-        ['C:/path/to/file']
-    """
-    return [pathlib.Path(_x).as_posix() for _x in paths if _x]
-
-
-def _should_exclude(path: pathlib.Path, exclude_files: typing.List[str], exclude_dirs: typing.List[str]) -> bool:
+def should_exclude(path: pathlib.Path, exclude_files: typing.List[str], exclude_dirs: typing.List[str]) -> bool:
     """
     Determine if a file should be excluded based on the exclusion lists.
 
@@ -159,8 +142,6 @@ def _should_exclude(path: pathlib.Path, exclude_files: typing.List[str], exclude
     """
     if os.path.basename(path).startswith("_"):
         return True
-    exclude_files = _normalize_paths(exclude_files)
-    exclude_dirs = _normalize_paths(exclude_dirs)
     if any(path.absolute().as_posix().endswith(_x) for _x in exclude_files):
         return True
     dir_name = os.path.dirname(path)
@@ -168,25 +149,41 @@ def _should_exclude(path: pathlib.Path, exclude_files: typing.List[str], exclude
 
 
 def render_ref(module: Module,
-               nav: mkdocs_gen_files.nav.Nav) -> mkdocs_gen_files.nav.Nav:
+               nav: mkdocs_gen_files.nav.Nav) -> typing.List[str]:
     """
-    Render the reference documentation for a module.
+    Renders the reference documentation for a given module and updates the navigation.
+
+    This function scans the specified module directory for Python files, generates
+    corresponding Markdown documentation files, and updates the navigation structure
+    for MkDocs.
 
     Args:
-        module (Module): The module to document.
-        nav (mkdocs_gen_files.nav.Nav): The navigation object.
+        module (Module): The module for which to generate reference documentation.
+            - path (str): The path to the module directory.
+            - name (str): The name of the module.
+            - exclude_files (list): List of files to exclude from documentation.
+            - exclude_dirs (list): List of directories to exclude from documentation.
+            - options (dict): Additional options for generating documentation.
+        nav (mkdocs_gen_files.nav.Nav): The MkDocs navigation object to update.
 
     Returns:
-        mkdocs_gen_files.nav.Nav: The updated navigation object.
+        typing.List[str]: A list of paths to the generated Markdown documentation files.
 
     Example:
-        >>> module = Module(name='os', path='/usr/lib/python3.9', exclude_files=[], exclude_dirs=[], options={})
-        >>> nav = mkdocs_gen_files.nav.Nav()
-        >>> render_ref(module, nav)
-        <mkdocs_gen_files.nav.Nav object at 0x...>
+        module = Module(
+            path="/path/to/module",
+            name="module_name",
+            exclude_files=["excluded_file.py"],
+            exclude_dirs=["excluded_dir"],
+            options={"option_key": "option_value"}
+        )
+        nav = mkdocs_gen_files.nav.Nav()
+        files = render_ref(module, nav)
+        print(files)
     """
+    files = []
     for path in sorted(pathlib.Path(module.path, module.name).rglob("*.py")):
-        if _should_exclude(path, module.exclude_files, module.exclude_dirs):
+        if should_exclude(path, module.exclude_files, module.exclude_dirs):
             continue
         module_path = path.relative_to(module.path).with_suffix("")
         doc_path = path.relative_to(module.path).with_suffix(".md")
@@ -199,11 +196,12 @@ def render_ref(module: Module,
         elif parts[-1] == "__main__":
             continue
         nav[parts] = doc_path.as_posix()
+        files.append(full_doc_path.as_posix())
         with mkdocs_gen_files.open(full_doc_path, "w") as fd:
             identifier = ".".join(parts)
             md_content = get_md_content(identifier, options=module.options)
             print(f"{md_content}", file=fd)
-    return nav
+    return files
 
 
 def generate_summary(nav: mkdocs_gen_files.nav.Nav):
@@ -220,18 +218,3 @@ def generate_summary(nav: mkdocs_gen_files.nav.Nav):
     path = pathlib.Path("reference", "SUMMARY.md")
     with mkdocs_gen_files.open(path.as_posix(), "w") as nav_file:
         nav_file.writelines(nav.build_literate_nav())
-
-
-@functools.lru_cache
-def get_root_path() -> pathlib.Path:
-    """
-    Get the root path of the project.
-
-    Returns:
-        pathlib.Path: The root path of the project.
-
-    Example:
-        >>> get_root_path()
-        PosixPath('/Users/khaising/Documents/git-repositories/mkdocs-python-ref-generator')
-    """
-    return pathlib.Path(__file__).parent.parent

@@ -65,10 +65,10 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
-
+.vscode
 # Scrapy stuff:
 .scrapy
-
+docs/reference
 # Sphinx documentation
 docs/_build/
 
