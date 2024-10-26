@@ -4,11 +4,9 @@ mkdocs plugin to generate reference documentation and summary of python package(
 
 It's a wrapper plugin built using [mkdocs-gen-file](https://github.com/oprypin/)
 
-
 ```shell
 pip install mkdocs-py-ref-gen
 ```
-
 
 ## usage
 
