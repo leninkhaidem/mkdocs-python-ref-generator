@@ -20,4 +20,4 @@ plugins:
 
 ```
 
-[Click me](//) for full documention
+[Click me](https://leninkhaidem.github.io/mkdocs-python-ref-generator) for full documention
