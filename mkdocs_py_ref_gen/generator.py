@@ -1,6 +1,7 @@
 import dataclasses
 import functools
 import logging
+import os
 import pathlib
 import pkgutil
 import typing
@@ -82,17 +83,29 @@ class Module:
     options: dict
 
 
+def _normalize_paths(paths: typing.List[str]) -> typing.List[str]:
+    return [pathlib.Path(_x).as_posix() for _x in paths if _x]
+
+
+def _should_exclude(path: pathlib.Path, exclude_files: typing.List[str], exclude_dirs: typing.List[str]) -> bool:
+    if os.path.basename(path).startswith("_"):
+        return True
+    exclude_files = _normalize_paths(exclude_files)
+    exclude_dirs = _normalize_paths(exclude_dirs)
+    if any(path.absolute().as_posix().endswith(_x) for _x in exclude_files):
+        return True
+    dir_name = os.path.dirname(path)
+    return any(dir_name.endswith(_x) for _x in exclude_dirs)
+
+
 def render_ref(module: Module,
-               nav: mkdocs_gen_files.Nav,
-               target_folder: typing.Optional[str] = None) -> mkdocs_gen_files.Nav:
-    log.info(f"{module.path=}")
-    target_folder = target_folder or ""
+               nav: mkdocs_gen_files.nav.Nav) -> mkdocs_gen_files.nav.Nav:
     for path in sorted(pathlib.Path(module.path, module.name).rglob("*.py")):
-        if any(path.absolute().as_posix().endswith(_x) for _x in module.exclude_files):
+        if _should_exclude(path, module.exclude_files, module.exclude_dirs):
             continue
         module_path = path.relative_to(module.path).with_suffix("")
         doc_path = path.relative_to(module.path).with_suffix(".md")
-        full_doc_path = pathlib.Path(target_folder, "reference", doc_path)
+        full_doc_path = pathlib.Path("reference", doc_path)
         parts = tuple(module_path.parts)
         if parts[-1] == "__init__":
             parts = parts[:-1]
@@ -108,8 +121,8 @@ def render_ref(module: Module,
     return nav
 
 
-def generate_summary(nav: mkdocs_gen_files.Nav, target_folder: str = ""):
-    path = pathlib.Path(target_folder, "reference", "SUMMARY.md")
+def generate_summary(nav: mkdocs_gen_files.nav.Nav):
+    path = pathlib.Path("reference", "SUMMARY.md")
     with mkdocs_gen_files.open(path.as_posix(), "w") as nav_file:
         nav_file.writelines(nav.build_literate_nav())
 
@@ -117,11 +130,3 @@ def generate_summary(nav: mkdocs_gen_files.Nav, target_folder: str = ""):
 @functools.lru_cache
 def get_root_path() -> pathlib.Path:
     return pathlib.Path(__file__).parent.parent
-
-
-def generate_refs(target_folder: typing.Optional[str] = None):
-    ...
-    # nav = mkdocs_gen_files.Nav()
-    # for module in get_modules():
-    #     render_ref(module, nav)
-    # generate_summary(nav)

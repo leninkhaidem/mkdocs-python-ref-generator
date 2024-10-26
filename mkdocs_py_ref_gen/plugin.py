@@ -1,4 +1,5 @@
 import logging
+import sys
 import tempfile
 import typing
 
@@ -31,9 +32,31 @@ class PluginConfig(base.Config):
     modules = c.ListOfItems(c.SubConfig(ModuleConfig), default=[])
 
 
+def safe_getattr(obj, attr, default=None):
+    try:
+        for part in attr.split('.'):
+            obj = getattr(obj, part)
+        return obj
+    except AttributeError:
+        return default
+
+
 class MkDocsPyRefGenPlugin(GenFilesPlugin):
     config_scheme = (('modules', c.ListOfItems(
         c.SubConfig(ModuleConfig), default=[])),)
+
+    def _load_paths(self, config: Config):
+        handlers = safe_getattr(
+            config['plugins'].get('mkdocstrings'), 'config.handlers', {})
+        python_handler = handlers.get('python', {})
+        paths = python_handler.get('paths', [])
+        for path in paths:
+            if path in sys.path:
+                continue
+            sys.path.append(path)
+
+    def on_config(self, config):
+        self._load_paths(config)
 
     def _get_modules(self) -> typing.List[generator.Module]:
         modules = [
@@ -53,7 +76,7 @@ class MkDocsPyRefGenPlugin(GenFilesPlugin):
         self._dir = tempfile.TemporaryDirectory(prefix="mkdocs_gen_files_")
         modules = self._get_modules()
         with FilesEditor(files, config, self._dir.name) as ed:
-            nav = mkdocs_gen_files.Nav()
+            nav = mkdocs_gen_files.nav.Nav()
             for module in modules:
                 generator.render_ref(module, nav)
             generator.generate_summary(nav)

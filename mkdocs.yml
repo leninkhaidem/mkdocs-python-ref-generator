@@ -1,5 +1,47 @@
-site_name: My Docs
+site_name: mkdocs-py-ref-gen
+repo_url: https://github.com/leninkhaidem/mkdocs-python-ref-generator
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+    previous: fontawesome/solid/angle-left
+    next: fontawesome/solid/angle-right
+    logo: material/language-python
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+    - navigation.path
+    - navigation.instant
+    - navigation.prune
+    - toc.follow
+  language: en
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.mark
+  - attr_list
+
+    # Add more modules and submodules here
+
 plugins:
-  - py-ref-gen:
-      modules:
-        - name: mkdocs_py_ref_gen
+  - search
+  - termynal
+
+nav:
+  - Overview: index.md
+  - Usage: usage.md

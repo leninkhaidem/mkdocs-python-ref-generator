@@ -6,6 +6,7 @@ poetry.lock
 # C extensions
 *.so
 
+tests/docs
 # Distribution / packaging
 .Python
 build/

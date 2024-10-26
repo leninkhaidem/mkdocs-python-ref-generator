@@ -11,9 +11,10 @@ mkdocs-gen-files = "^0.5.0"
 mkdocs-literate-nav = "^0.6.1"
 pytest = "^8.3.3"
 click = "^8.1.7"
+mkdocs-section-index = "^0.3.9"
 
 [tool.poetry.scripts]
-mkdocs-py-ref-gen = "mkdocs_py_ref_gen.cli:main"
+py-ref-gen = "mkdocs_py_ref_gen.cli:main"
 
 [build-system]
 requires = ["poetry-core"]
