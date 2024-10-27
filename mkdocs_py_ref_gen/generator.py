@@ -1,7 +1,7 @@
 import dataclasses
+import importlib.util
 import os
 import pathlib
-import pkgutil
 import typing
 
 import mkdocs_gen_files
@@ -10,10 +10,10 @@ import mkdocs_gen_files
 def get_module_path(module_name: str) -> str:
     if not module_name:
         raise ValueError("module_name is required")
-    info = pkgutil.find_loader(module_name)
-    if not info:
+    spec = importlib.util.find_spec(module_name)
+    if not spec or not spec.origin:
         raise ImportError(f"module {module_name} not found")
-    return pathlib.Path(info.get_filename()).parent.parent.as_posix()
+    return pathlib.Path(spec.origin).parent.parent.as_posix()
 
 
 def dict_to_yaml(data, indent=0):
@@ -144,7 +144,7 @@ def should_exclude(path: pathlib.Path, exclude_files: typing.List[str], exclude_
         >>> _should_exclude(pathlib.Path('test.py'), ['test.py'], [])
         True
     """
-    if os.path.basename(path).startswith("_"):
+    if os.path.basename(path).startswith("_") and os.path.basename(path) not in ["__init__.py", "__main__.py"]:
         return True
     if any(path.absolute().as_posix().endswith(_x) for _x in exclude_files):
         return True

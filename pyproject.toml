@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mkdocs-py-ref-gen"
-version = "0.1.0"
+version = "0.1.1"
 description = "mkdocs plugin to generate reference documentation and summary of python package(s)"
 license = "MIT"
 documentation = "https://leninkhaidem.github.io/mkdocs-python-ref-generator/"
