@@ -200,7 +200,7 @@ def test_render_ref(cleanup):
     files = sorted(render_ref(module, nav))
     print(len(files))
     assert files == get_generated_md_files(
-        pathlib.Path("docs", "referece").as_posix()) and len(files) == 5
+        pathlib.Path("docs", "reference").as_posix()) and len(files) == 8
 
 
 def test_generate_summary(cleanup):
@@ -209,8 +209,9 @@ def test_generate_summary(cleanup):
     nav = mkdocs_gen_files.nav.Nav()
     render_ref(module, nav)
     generate_summary(nav)
-    assert get_file_content_hash(pathlib.Path(
-        "docs", "reference", "SUMMARY.md").as_posix()) == "f6fc7e08ff8aefe481f08388408357ac"
+    _hash = get_file_content_hash(pathlib.Path(
+        "docs", "reference", "SUMMARY.md").as_posix())
+    assert _hash == "aac82ab09c640bb199487549449cc94a"
 
 
 def test_ref_with_default(cleanup):

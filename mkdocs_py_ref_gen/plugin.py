@@ -1,4 +1,3 @@
-import logging
 import sys
 import tempfile
 import typing
@@ -12,12 +11,16 @@ from mkdocs_gen_files.plugin import GenFilesPlugin
 
 from . import generator
 
-# log = logging.getLogger(f"mkdocs.plugins.{__name__}")
-
 try:
     from mkdocs.exceptions import PluginError
 except ImportError:
     PluginError = SystemExit  # type: ignore
+
+
+def validate_options(value):
+    if not isinstance(value, (dict, bool)):
+        raise ValueError("options must be a dict or a bool")
+    return value
 
 
 class ModuleConfig(base.Config):
@@ -25,7 +28,7 @@ class ModuleConfig(base.Config):
     path = c.Type(str, default="")
     exclude_files = c.Type(list, default=[])
     exclude_dirs = c.Type(list, default=[])
-    options = c.Type(typing.Union[dict, bool], default={})
+    options = c.Type((dict, bool), default=True)
 
 
 class PluginConfig(base.Config):
