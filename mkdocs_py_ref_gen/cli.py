@@ -22,7 +22,7 @@ def main(name: str, path: str, exclude_files: tuple[str], exclude_dirs: tuple[st
         path=path or generator.get_module_path(name),
         exclude_files=list(exclude_files),
         exclude_dirs=list(exclude_dirs),
-        options={}
+        options=True
     )
 
     generator.render_ref(module=module, nav=nav)

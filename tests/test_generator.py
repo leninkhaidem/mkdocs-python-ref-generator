@@ -2,7 +2,6 @@ import hashlib
 import os
 import pathlib
 import shutil
-from unittest.mock import MagicMock
 
 import mkdocs_gen_files
 import pytest
@@ -11,6 +10,47 @@ from mkdocs_py_ref_gen.generator import (Module, dict_to_yaml,
                                          generate_summary, get_md_content,
                                          get_module_path, get_options_str,
                                          render_ref, should_exclude)
+
+current_folder = pathlib.Path(__file__).parent
+os.chdir(current_folder)
+
+
+@pytest.fixture(scope="function")
+def cleanup():
+    delete_ref_folder()
+    yield
+    delete_ref_folder()
+
+
+def delete_ref_folder():
+    folder = os.path.join("docs", "reference")
+    if os.path.exists(folder):
+        shutil.rmtree(folder)
+
+
+def get_generated_md_files(path):
+    return sorted([_x.relative_to("docs").as_posix() for _x in pathlib.Path(path).rglob("*.md")])
+
+
+def compute_sha512_hash(string: str):
+    """
+    Computes the SHA-512 hash of a given string and returns the first 32 characters of the hexadecimal digest.
+
+    Args:
+        string (str): The input string to be hashed.
+
+    Returns:
+        str: The first 32 characters of the SHA-512 hexadecimal digest of the input string.
+    """
+    sha_hash = hashlib.sha512()
+    sha_hash.update(string.encode('utf-8'))
+    return sha_hash.hexdigest()[:32]
+
+
+def get_file_content_hash(file_path: str):
+
+    with open(file_path) as fd:
+        return compute_sha512_hash(fd.read())
 
 
 def test_get_module_path_valid():
@@ -153,52 +193,33 @@ def test_should_not_exclude():
     assert should_exclude(path, exclude_files, exclude_dirs) is False
 
 
-def delete_ref_folder():
-    folder = os.path.join("docs", "reference")
-    if os.path.exists(folder):
-        shutil.rmtree(folder)
-
-
-def get_generated_md_files(path):
-    return sorted([_x.relative_to("docs").as_posix() for _x in pathlib.Path(path).rglob("*.md")])
-
-
-def test_render_ref():
-    module = Module(name='my_test_package', path="tests",
+def test_render_ref(cleanup):
+    module = Module(name='my_test_package', path=".",
                     exclude_files=[], exclude_dirs=[], options={})
-    delete_ref_folder()
     nav = mkdocs_gen_files.nav.Nav()
     files = sorted(render_ref(module, nav))
     print(len(files))
     assert files == get_generated_md_files(
-        "docs/reference") and len(files) == 5
+        pathlib.Path("docs", "referece").as_posix()) and len(files) == 5
 
 
-def compute_sha512_hash(string: str):
-    """
-    Computes the SHA-512 hash of a given string and returns the first 32 characters of the hexadecimal digest.
-
-    Args:
-        string (str): The input string to be hashed.
-
-    Returns:
-        str: The first 32 characters of the SHA-512 hexadecimal digest of the input string.
-    """
-    sha_hash = hashlib.sha512()
-    sha_hash.update(string.encode('utf-8'))
-    return sha_hash.hexdigest()[:32]
-
-
-def test_generate_summary():
-    module = Module(name='my_test_package', path="tests",
+def test_generate_summary(cleanup):
+    module = Module(name='my_test_package', path=".",
                     exclude_files=[], exclude_dirs=["test_pkg_exclude"], options={})
-    delete_ref_folder()
     nav = mkdocs_gen_files.nav.Nav()
     render_ref(module, nav)
     generate_summary(nav)
-    with open(pathlib.Path("docs", "reference", "SUMMARY.md")) as fd:
-        assert compute_sha512_hash(
-            fd.read()) == "f6fc7e08ff8aefe481f08388408357ac"
+    assert get_file_content_hash(pathlib.Path(
+        "docs", "reference", "SUMMARY.md").as_posix()) == "f6fc7e08ff8aefe481f08388408357ac"
 
 
-# test_render_ref()
+def test_ref_with_default(cleanup):
+    module = Module(name='test_pkg',
+                    path="my_test_package", exclude_files=['mod_b.py'],
+                    exclude_dirs=[], options=False)
+    nav = mkdocs_gen_files.nav.Nav()
+    render_ref(module, nav)
+    file_path = pathlib.Path(
+        "docs", "reference", "test_pkg", "mod_a.md").as_posix()
+    assert get_file_content_hash(
+        file_path) == "8597005105662df928e2a0f570a4275e"

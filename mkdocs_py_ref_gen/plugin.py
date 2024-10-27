@@ -12,7 +12,7 @@ from mkdocs_gen_files.plugin import GenFilesPlugin
 
 from . import generator
 
-log = logging.getLogger(f"mkdocs.plugins.{__name__}")
+# log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
 try:
     from mkdocs.exceptions import PluginError
@@ -25,7 +25,7 @@ class ModuleConfig(base.Config):
     path = c.Type(str, default="")
     exclude_files = c.Type(list, default=[])
     exclude_dirs = c.Type(list, default=[])
-    options = c.Type(dict, default={})
+    options = c.Type(typing.Union[dict, bool], default={})
 
 
 class PluginConfig(base.Config):
@@ -65,7 +65,7 @@ class MkDocsPyRefGenPlugin(GenFilesPlugin):
                                  _x['name']),
                              exclude_files=_x.get("exclude_files", []),
                              exclude_dirs=_x.get("exclude_dirs", []),
-                             options=_x.get("options", {}))
+                             options=_x.get("options", True))
             for _x in self.config['modules']
         ]
         if not modules:

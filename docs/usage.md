@@ -118,10 +118,11 @@ $ cat docs/reference/SUMMARY.md
 - `name`: The name of the python module. It should exist in the python path. Works if loaded through mkdocstrings python path option mentioned [here](https://mkdocstrings.github.io/python/usage/#paths)
 - `exclude_dirs`: Path substring or folder name. The plugin skips generation of the content from these folders if any.
 - `exclude_files`: Path substring or file names to be excluded
-- `option`: This is the mkdocstring[python] configuration option documented [here](https://mkdocstrings.github.io/python/usage/#configuration). The plugin uses some default optinos as shown [here](#sample-generated-reference-file). This options are applied locally to all the generated files.
+- `option`: This is the mkdocstring[python] configuration option documented [here](https://mkdocstrings.github.io/python/usage/#configuration). The plugin uses some default options as shown [here](#sample-generated-reference-file). This options are applied locally to all the generated files.
+`option` field is boolean or dictionary. default value is set to true which adds the default options. If set to false, options will not be added.
 
-!!! Warning
-    Local options overrides  global mkdocstring python options if specified. It's advised to use the python options under this plugin
+!!! Note
+    Local options overrides global mkdocstring python options if specified.
 
 ## Command line utility
 

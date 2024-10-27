@@ -1,14 +1,10 @@
 import dataclasses
-import functools
-import logging
 import os
 import pathlib
 import pkgutil
 import typing
 
 import mkdocs_gen_files
-
-log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
 
 def get_module_path(module_name: str) -> str:
@@ -92,21 +88,29 @@ def get_options_str(options: typing.Optional[dict] = None) -> str:
     return dict_to_yaml(options, indent=3)
 
 
-def get_md_content(identifier: str, options: typing.Optional[dict] = None) -> str:
+def get_md_content(identifier: str, options: typing.Union[dict, bool] = True) -> str:
     """
-    Get the markdown content for a given identifier.
+    Generates markdown content for a given identifier with optional configuration.
 
     Args:
-        identifier (str): The identifier for the module/class/function.
-        options (dict, optional): The options dictionary. Defaults to None.
+        identifier (str): The identifier for which the markdown content is generated.
+        options (Union[dict, bool], optional): Configuration options for the markdown content.
+            If a boolean is provided, it determines whether to include default options.
+            If a dictionary is provided, it specifies custom options. Defaults to True.
 
     Returns:
-        str: The markdown content.
+        str: The generated markdown content.
 
     Example:
-        >>> get_md_content('os.path')
-        '\\n::: os.path\\n    handler: python\\n    options:\\n   show_root_heading: false\\n...'
+        >>> get_md_content("my_identifier", {"option1": "value1"})
+        '\n::: my_identifier\n    handler: python\n    options:\noption1: value1\n'
+
+        >>> get_md_content("my_identifier", False)
+        '::: my_identifier'
     """
+    if isinstance(options, bool) and not options or options == {}:
+        return f"::: {identifier}"
+    options = options if isinstance(options, dict) else {}
     return f"""
 ::: {identifier}
     handler: python
@@ -121,7 +125,7 @@ class Module:
     path: str
     exclude_files: typing.List[str]
     exclude_dirs: typing.List[str]
-    options: dict
+    options: typing.Union[dict, bool]
 
 
 def should_exclude(path: pathlib.Path, exclude_files: typing.List[str], exclude_dirs: typing.List[str]) -> bool:
@@ -153,33 +157,12 @@ def render_ref(module: Module,
     """
     Renders the reference documentation for a given module and updates the navigation.
 
-    This function scans the specified module directory for Python files, generates
-    corresponding Markdown documentation files, and updates the navigation structure
-    for MkDocs.
-
     Args:
-        module (Module): The module for which to generate reference documentation.
-            - path (str): The path to the module directory.
-            - name (str): The name of the module.
-            - exclude_files (list): List of files to exclude from documentation.
-            - exclude_dirs (list): List of directories to exclude from documentation.
-            - options (dict): Additional options for generating documentation.
-        nav (mkdocs_gen_files.nav.Nav): The MkDocs navigation object to update.
+        module (Module): The module for which to generate the reference documentation.
+        nav (mkdocs_gen_files.nav.Nav): The navigation object to update with the generated documentation paths.
 
     Returns:
-        typing.List[str]: A list of paths to the generated Markdown documentation files.
-
-    Example:
-        module = Module(
-            path="/path/to/module",
-            name="module_name",
-            exclude_files=["excluded_file.py"],
-            exclude_dirs=["excluded_dir"],
-            options={"option_key": "option_value"}
-        )
-        nav = mkdocs_gen_files.nav.Nav()
-        files = render_ref(module, nav)
-        print(files)
+        typing.List[str]: A list of paths to the generated documentation files.
     """
     files = []
     for path in sorted(pathlib.Path(module.path, module.name).rglob("*.py")):
