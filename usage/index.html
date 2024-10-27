@@ -574,11 +574,12 @@
 <li><code>name</code>: The name of the python module. It should exist in the python path. Works if loaded through mkdocstrings python path option mentioned <a href="https://mkdocstrings.github.io/python/usage/#paths">here</a></li>
 <li><code>exclude_dirs</code>: Path substring or folder name. The plugin skips generation of the content from these folders if any.</li>
 <li><code>exclude_files</code>: Path substring or file names to be excluded</li>
-<li><code>option</code>: This is the mkdocstring[python] configuration option documented <a href="https://mkdocstrings.github.io/python/usage/#configuration">here</a>. The plugin uses some default optinos as shown <a href="#sample-generated-reference-file">here</a>. This options are applied locally to all the generated files.</li>
+<li><code>option</code>: This is the mkdocstring[python] configuration option documented <a href="https://mkdocstrings.github.io/python/usage/#configuration">here</a>. The plugin uses some default options as shown <a href="#sample-generated-reference-file">here</a>. This options are applied locally to all the generated files.
+<code>option</code> field is boolean or dictionary. default value is set to true which adds the default options. If set to false, options will not be added.</li>
 </ul>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Local options overrides  global mkdocstring python options if specified. It's advised to use the python options under this plugin</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Local options overrides global mkdocstring python options if specified.</p>
 </div>
 <h2 id="command-line-utility">Command line utility</h2>
 <p><code>py-ref-gen</code> command line utility can be used to generate the files if further customization is needed.</p>
