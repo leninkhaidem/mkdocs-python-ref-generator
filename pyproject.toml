@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "mkdocs-py-ref-gen"
+version = "0.1.0"
+description = "mkdocs plugin to generate reference documentation and summary of python package(s)"
+license = "MIT"
+documentation = "https://leninkhaidem.github.io/mkdocs-python-ref-generator/"
+repository = "https://github.com/leninkhaidem/mkdocs-python-ref-generator"
+authors = ["Lenin Khaidem <leninkhaidem@gmail.com>"]
+readme = "README.md"
+keywords = ["mkdocs", "mkdocs-plugin", "docstrings", "autodoc", "documentation","mkdocstrings[python]","python"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.1"
+click = "^8.1.7"
+mkdocs-section-index = "^0.3.9"
+
+[tool.poetry.scripts]
+py-ref-gen = "mkdocs_py_ref_gen.cli:main"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-cov = "^5.0.0"
+coverage = "^7.6.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins."mkdocs.plugins"]
+py-ref-gen = "mkdocs_py_ref_gen.plugin:MkDocsPyRefGenPlugin"

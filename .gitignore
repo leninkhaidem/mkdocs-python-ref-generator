@@ -2,10 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+poetry.lock
 # C extensions
 *.so
 
+tests/docs
 # Distribution / packaging
 .Python
 build/
@@ -64,10 +65,10 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
-
+.vscode
 # Scrapy stuff:
 .scrapy
-
+docs/reference
 # Sphinx documentation
 docs/_build/
 
@@ -160,3 +161,22 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# This .gitignore is appropriate for repositories deployed to GitHub Pages and using
+# a Gemfile as specified at https://github.com/github/pages-gem#conventional
+
+# Basic Jekyll gitignores (synchronize to Jekyll.gitignore)
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Additional Ruby/bundler ignore for when you run: bundle install
+/vendor
+
+# Specific ignore for GitHub Pages
+# GitHub Pages will always use its own deployed version of pages-gem 
+# This means GitHub Pages will NOT use your Gemfile.lock and therefore it is
+# counterproductive to check this file into the repository.
+# Details at https://github.com/github/pages-gem/issues/768
+Gemfile.lock
